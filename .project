@@ -3,6 +3,8 @@
 	<name>DS3232RTC</name>
 	<comment></comment>
 	<projects>
+		<project>AttinyCore</project>
+		<project>TinyWireM</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
