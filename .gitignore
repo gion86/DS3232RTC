@@ -1,2 +1,2 @@
-*.zip
-*.7z
+/Release/
+/Attiny84/
