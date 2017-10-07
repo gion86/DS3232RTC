@@ -345,5 +345,3 @@ uint8_t __attribute__ ((noinline)) DS3232RTC::bcd2dec(uint8_t n)
 {
     return n - 6 * (n >> 4);
 }
-
-DS3232RTC RTC = DS3232RTC();            //instantiate an RTC object
