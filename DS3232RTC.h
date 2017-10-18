@@ -38,12 +38,8 @@
 #ifndef DS3232RTC_h
 #define DS3232RTC_h
 #include <Time.h>
-
-#if defined(ARDUINO) && ARDUINO >= 100
 #include <Arduino.h> 
-#else
-#include <WProgram.h> 
-#endif
+#include <TinyWireM.h>
 
 //DS3232 I2C Address
 #define RTC_ADDR 0x68
@@ -105,17 +101,17 @@ enum SQWAVE_FREQS_t {SQWAVE_1_HZ, SQWAVE_1024_HZ, SQWAVE_4096_HZ, SQWAVE_8192_HZ
 
 //Alarm masks
 enum ALARM_TYPES_t {
-    ALM1_EVERY_SECOND = 0x0F,
-    ALM1_MATCH_SECONDS = 0x0E,
-    ALM1_MATCH_MINUTES = 0x0C,     //match minutes *and* seconds
-    ALM1_MATCH_HOURS = 0x08,       //match hours *and* minutes, seconds
-    ALM1_MATCH_DATE = 0x00,        //match date *and* hours, minutes, seconds
-    ALM1_MATCH_DAY = 0x10,         //match day *and* hours, minutes, seconds
-    ALM2_EVERY_MINUTE = 0x8E,
-    ALM2_MATCH_MINUTES = 0x8C,     //match minutes
-    ALM2_MATCH_HOURS = 0x88,       //match hours *and* minutes
-    ALM2_MATCH_DATE = 0x80,        //match date *and* hours, minutes
-    ALM2_MATCH_DAY = 0x90,         //match day *and* hours, minutes
+    ALM1_EVERY_SECOND   = 0x0F,
+    ALM1_MATCH_SECONDS  = 0x0E,
+    ALM1_MATCH_MINUTES  = 0x0C,    //match minutes *and* seconds
+    ALM1_MATCH_HOURS    = 0x08,    //match hours *and* minutes, seconds
+    ALM1_MATCH_DATE     = 0x00,    //match date *and* hours, minutes, seconds
+    ALM1_MATCH_DAY      = 0x10,    //match day *and* hours, minutes, seconds
+    ALM2_EVERY_MINUTE   = 0x8E,
+    ALM2_MATCH_MINUTES  = 0x8C,    //match minutes
+    ALM2_MATCH_HOURS    = 0x88,    //match hours *and* minutes
+    ALM2_MATCH_DATE     = 0x80,    //match date *and* hours, minutes
+    ALM2_MATCH_DAY      = 0x90,    //match day *and* hours, minutes
 };
 
 #define ALARM_1 1                  //constants for calling functions
@@ -130,10 +126,10 @@ enum ALARM_TYPES_t {
 class DS3232RTC
 {
     public:
-        DS3232RTC();
-        static time_t get(void);    //must be static to work with setSyncProvider() in the Time library
+        DS3232RTC(USI_TWI &bus);
+        time_t get(void);
         byte set(time_t t);
-        static byte read(tmElements_t &tm);
+        byte read(tmElements_t &tm);
         byte write(tmElements_t &tm);
         byte writeRTC(byte addr, byte *values, byte nBytes);
         byte writeRTC(byte addr, byte value);
@@ -151,6 +147,8 @@ class DS3232RTC
     private:
         uint8_t dec2bcd(uint8_t n);
         static uint8_t bcd2dec(uint8_t n);
+
+        USI_TWI &busI2C;            //i2c bus instance
 };
 
 #endif
