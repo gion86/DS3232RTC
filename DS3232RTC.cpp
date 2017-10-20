@@ -42,7 +42,7 @@ byte DS3232RTC::errCode;     //for debug
 /*----------------------------------------------------------------------*
  * Constructor.                                                         *
  *----------------------------------------------------------------------*/
-DS3232RTC::DS3232RTC(USI_TWI &bus) : busI2C(bus)
+DS3232RTC::DS3232RTC(USIWire &bus) : busI2C(bus)
 {
 }
   
@@ -79,17 +79,17 @@ byte DS3232RTC::set(time_t t)
 byte DS3232RTC::read(struct tm *tm)
 {
     busI2C.beginTransmission(RTC_ADDR);
-    busI2C.send((uint8_t)RTC_SECONDS);
+    busI2C.write((uint8_t)RTC_SECONDS);
     if ( byte e = busI2C.endTransmission() ) { errCode = e; return e; }
     //request 7 bytes (secs, min, hr, dow, date, mth, yr)
     busI2C.requestFrom(RTC_ADDR, 7);
-    tm->tm_sec = bcd2dec(busI2C.receive() & ~_BV(DS1307_CH));
-    tm->tm_min = bcd2dec(busI2C.receive());
-    tm->tm_hour = bcd2dec(busI2C.receive() & ~_BV(HR1224));    //assumes 24hr clock
-    tm->tm_wday = busI2C.receive();
-    tm->tm_mday = bcd2dec(busI2C.receive());
-    tm->tm_mon = bcd2dec(busI2C.receive() & ~_BV(CENTURY));  //don't use the Century bit
-    tm->tm_year = bcd2dec(busI2C.receive());
+    tm->tm_sec = bcd2dec(busI2C.read() & ~_BV(DS1307_CH));
+    tm->tm_min = bcd2dec(busI2C.read());
+    tm->tm_hour = bcd2dec(busI2C.read() & ~_BV(HR1224));    //assumes 24hr clock
+    tm->tm_wday = busI2C.read();
+    tm->tm_mday = bcd2dec(busI2C.read());
+    tm->tm_mon = bcd2dec(busI2C.read() & ~_BV(CENTURY));  //don't use the Century bit
+    tm->tm_year = bcd2dec(busI2C.read());
     tm->tm_isdst = 0;
     return 0;
 }
@@ -102,14 +102,14 @@ byte DS3232RTC::read(struct tm *tm)
 byte DS3232RTC::write(struct tm *tm)
 {
     busI2C.beginTransmission(RTC_ADDR);
-    busI2C.send((uint8_t)RTC_SECONDS);
-    busI2C.send(dec2bcd(tm->tm_sec));
-    busI2C.send(dec2bcd(tm->tm_min));
-    busI2C.send(dec2bcd(tm->tm_hour));         //sets 24 hour format (Bit 6 == 0)
-    busI2C.send(tm->tm_wday);
-    busI2C.send(dec2bcd(tm->tm_mday));
-    busI2C.send(dec2bcd(tm->tm_mon));
-    busI2C.send(dec2bcd(tm->tm_year));
+    busI2C.write((uint8_t)RTC_SECONDS);
+    busI2C.write(dec2bcd(tm->tm_sec));
+    busI2C.write(dec2bcd(tm->tm_min));
+    busI2C.write(dec2bcd(tm->tm_hour));         //sets 24 hour format (Bit 6 == 0)
+    busI2C.write(tm->tm_wday);
+    busI2C.write(dec2bcd(tm->tm_mday));
+    busI2C.write(dec2bcd(tm->tm_mon));
+    busI2C.write(dec2bcd(tm->tm_year));
     byte ret = busI2C.endTransmission();
     uint8_t s = readRTC(RTC_STATUS);        //read the status register
     writeRTC( RTC_STATUS, s & ~_BV(OSF) );  //clear the Oscillator Stop Flag
@@ -126,8 +126,8 @@ byte DS3232RTC::write(struct tm *tm)
 byte DS3232RTC::writeRTC(byte addr, byte *values, byte nBytes)
 {
     busI2C.beginTransmission(RTC_ADDR);
-    busI2C.send(addr);
-    for (byte i=0; i<nBytes; i++) busI2C.send(values[i]);
+    busI2C.write(addr);
+    for (byte i=0; i<nBytes; i++) busI2C.write(values[i]);
     return busI2C.endTransmission();
 }
 
@@ -151,10 +151,10 @@ byte DS3232RTC::writeRTC(byte addr, byte value)
 byte DS3232RTC::readRTC(byte addr, byte *values, byte nBytes)
 {
     busI2C.beginTransmission(RTC_ADDR);
-    busI2C.send(addr);
+    busI2C.write(addr);
     if ( byte e = busI2C.endTransmission() ) return e;
     busI2C.requestFrom( (uint8_t)RTC_ADDR, nBytes );
-    for (byte i=0; i<nBytes; i++) values[i] = busI2C.receive();
+    for (byte i=0; i<nBytes; i++) values[i] = busI2C.read();
     return 0;
 }
 

@@ -4,7 +4,7 @@
 	<comment></comment>
 	<projects>
 		<project>AttinyCore</project>
-		<project>TinyWireM</project>
+		<project>USIWire</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
