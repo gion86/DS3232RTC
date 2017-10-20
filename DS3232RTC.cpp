@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------*
  * DS3232RTC.cpp - Arduino library for the Maxim Integrated DS3232      *
- * Real-Time Clock. This library is intended for use with the Arduino   *
- * Time.h library, http://www.arduino.cc/playground/Code/Time           *
+ * Real-Time Clock. This library is intended to be used the avr-libc    *
+ * built in time library.                                               *
  *                                                                      *
  * This library is a drop-in replacement for the DS1307RTC.h library    *
  * by Michael Margolis that is supplied with the Arduino Time library   *
@@ -44,7 +44,6 @@ byte DS3232RTC::errCode;     //for debug
  *----------------------------------------------------------------------*/
 DS3232RTC::DS3232RTC(USI_TWI &bus) : busI2C(bus)
 {
-    //TODOi2cBegin();
 }
   
 /*----------------------------------------------------------------------*
@@ -54,10 +53,10 @@ DS3232RTC::DS3232RTC(USI_TWI &bus) : busI2C(bus)
  *----------------------------------------------------------------------*/
 time_t DS3232RTC::get()
 {
-    tmElements_t tm;
+    struct tm tm;
     
-    if ( read(tm) ) return 0;
-    return( makeTime(tm) );
+    if ( read(&tm) ) return 0;
+    return( mk_gmtime(&tm) );
 }
 
 /*----------------------------------------------------------------------*
@@ -67,49 +66,50 @@ time_t DS3232RTC::get()
  *----------------------------------------------------------------------*/
 byte DS3232RTC::set(time_t t)
 {
-    tmElements_t tm;
+    struct tm tm;
 
-    breakTime(t, tm);
-    return ( write(tm) );
+    gmtime_r(&t, &tm);
+    return ( write(&tm) );
 }
 
 /*----------------------------------------------------------------------*
- * Reads the current time from the RTC and returns it in a tmElements_t *
+ * Reads the current time from the RTC and returns it in a tm           *
  * structure. Returns the I2C status (zero if successful).              *
  *----------------------------------------------------------------------*/
-byte DS3232RTC::read(tmElements_t &tm)
+byte DS3232RTC::read(struct tm *tm)
 {
     busI2C.beginTransmission(RTC_ADDR);
     busI2C.send((uint8_t)RTC_SECONDS);
     if ( byte e = busI2C.endTransmission() ) { errCode = e; return e; }
     //request 7 bytes (secs, min, hr, dow, date, mth, yr)
-    busI2C.requestFrom(RTC_ADDR, tmNbrFields);
-    tm.Second = bcd2dec(busI2C.receive() & ~_BV(DS1307_CH));
-    tm.Minute = bcd2dec(busI2C.receive());
-    tm.Hour = bcd2dec(busI2C.receive() & ~_BV(HR1224));    //assumes 24hr clock
-    tm.Wday = busI2C.receive();
-    tm.Day = bcd2dec(busI2C.receive());
-    tm.Month = bcd2dec(busI2C.receive() & ~_BV(CENTURY));  //don't use the Century bit
-    tm.Year = y2kYearToTm(bcd2dec(busI2C.receive()));
+    busI2C.requestFrom(RTC_ADDR, 7);
+    tm->tm_sec = bcd2dec(busI2C.receive() & ~_BV(DS1307_CH));
+    tm->tm_min = bcd2dec(busI2C.receive());
+    tm->tm_hour = bcd2dec(busI2C.receive() & ~_BV(HR1224));    //assumes 24hr clock
+    tm->tm_wday = busI2C.receive();
+    tm->tm_mday = bcd2dec(busI2C.receive());
+    tm->tm_mon = bcd2dec(busI2C.receive() & ~_BV(CENTURY));  //don't use the Century bit
+    tm->tm_year = bcd2dec(busI2C.receive());
+    tm->tm_isdst = 0;
     return 0;
 }
 
 /*----------------------------------------------------------------------*
- * Sets the RTC's time from a tmElements_t structure and clears the     *
+ * Sets the RTC's time from a tm structure and clears the               *
  * oscillator stop flag (OSF) in the Control/Status register.           *
  * Returns the I2C status (zero if successful).                         *
  *----------------------------------------------------------------------*/
-byte DS3232RTC::write(tmElements_t &tm)
+byte DS3232RTC::write(struct tm *tm)
 {
     busI2C.beginTransmission(RTC_ADDR);
     busI2C.send((uint8_t)RTC_SECONDS);
-    busI2C.send(dec2bcd(tm.Second));
-    busI2C.send(dec2bcd(tm.Minute));
-    busI2C.send(dec2bcd(tm.Hour));         //sets 24 hour format (Bit 6 == 0)
-    busI2C.send(tm.Wday);
-    busI2C.send(dec2bcd(tm.Day));
-    busI2C.send(dec2bcd(tm.Month));
-    busI2C.send(dec2bcd(tmYearToY2k(tm.Year)));
+    busI2C.send(dec2bcd(tm->tm_sec));
+    busI2C.send(dec2bcd(tm->tm_min));
+    busI2C.send(dec2bcd(tm->tm_hour));         //sets 24 hour format (Bit 6 == 0)
+    busI2C.send(tm->tm_wday);
+    busI2C.send(dec2bcd(tm->tm_mday));
+    busI2C.send(dec2bcd(tm->tm_mon));
+    busI2C.send(dec2bcd(tm->tm_year));
     byte ret = busI2C.endTransmission();
     uint8_t s = readRTC(RTC_STATUS);        //read the status register
     writeRTC( RTC_STATUS, s & ~_BV(OSF) );  //clear the Oscillator Stop Flag
