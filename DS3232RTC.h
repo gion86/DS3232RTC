@@ -35,11 +35,14 @@
  * CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/         *
  *----------------------------------------------------------------------*/
 
-/*
- * Changed include to use USIWire, master/slave  I2C library for ATtiny.
- * Code taken from https://github.com/puuu/USIWire.
- * Removed references to Arduino and other micro.
- */
+/*----------------------------------------------------------------------*
+ * Arduino DS3232RTC Library v1.1                                       *
+ * Gionata Boccalini                                                    *
+ *                                                                      *
+ * - Changed include to use USIWire, master/slave  I2C library for      *
+ *   ATtiny, code taken from https://github.com/puuu/USIWire.           *
+ * - Removed references to Arduino and other micros.                    *
+ *----------------------------------------------------------------------*/
 
 #ifndef DS3232RTC_h
 #define DS3232RTC_h
