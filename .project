@@ -3,8 +3,9 @@
 	<name>DS3232RTC</name>
 	<comment></comment>
 	<projects>
-		<project>ATTinyCore</project>
+		<project>ATMegaCore</project>
 		<project>USIWire</project>
+		<project>Wire</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
