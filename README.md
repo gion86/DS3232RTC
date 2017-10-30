@@ -1,9 +1,8 @@
-# Arduino DS3232RTC Library v1.1 (ATtiny) #
+# Arduino DS3232RTC Library v1.1 (ATMega) #
                                                                    
-- Changed include to use USIWire, master/slave  I2C library for ATtiny, code taken from <https://github.com/puuu/USIWire> 
-  (I2C master-slave library)         
-- Removed references to Arduino and other micros.                  
-
+ - changed include to use Wire library from Arduino PlayGround  [https://www.arduino.cc/en/Reference/Wire](https://www.arduino.cc/en/Reference/Wire)                            
+ - added include for time library (avr-libc)                          
+ 
 # Arduino DS3232RTC Library v1.0 #
 https://github.com/JChristensen/DS3232RTC
 ReadMe file  

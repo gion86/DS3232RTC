@@ -39,9 +39,9 @@
  * Arduino DS3232RTC Library v1.1                                       *
  * Gionata Boccalini                                                    *
  *                                                                      *
- * - Changed include to use USIWire, master/slave  I2C library for      *
- *   ATtiny, code taken from https://github.com/puuu/USIWire.           *
- * - Removed references to Arduino and other micros.                    *
+ * - changed include to use Wire library from Arduino PlayGround        *
+ *   https://www.arduino.cc/en/Reference/Wire                           *
+ * - added include for time library (avr-libc)                          *
  *----------------------------------------------------------------------*/
 
 #ifndef DS3232RTC_h
@@ -49,7 +49,7 @@
 #include <time.h>
 
 #include <Arduino.h> 
-#include <USIWire.h>
+#include <Wire.h>
 
 //DS3232 I2C Address
 #define RTC_ADDR 0x68
@@ -136,7 +136,7 @@ enum ALARM_TYPES_t {
 class DS3232RTC
 {
     public:
-        DS3232RTC(USIWire &bus);
+        DS3232RTC(TwoWire &bus);
         time_t get(void);
         byte set(const time_t t);
         byte read(struct tm *tm);
@@ -158,7 +158,7 @@ class DS3232RTC
         uint8_t dec2bcd(uint8_t n);
         static uint8_t bcd2dec(uint8_t n);
 
-        USIWire &busI2C;            //i2c bus instance
+        TwoWire &busI2C;            //i2c bus instance
 };
 
 #endif
