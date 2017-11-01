@@ -39,9 +39,8 @@
  * Arduino DS3232RTC Library v1.1                                       *
  * Gionata Boccalini                                                    *
  *                                                                      *
- * - Changed include to use USIWire, master/slave  I2C library for      *
+ * - Changed include to use USIWire, master/slave I2C library for       *
  *   ATtiny, code taken from https://github.com/puuu/USIWire.           *
- * - Removed references to Arduino and other micros.                    *
  *----------------------------------------------------------------------*/
 
 #include <DS3232RTC.h>
@@ -51,9 +50,15 @@ byte DS3232RTC::errCode;     //for debug
 /*----------------------------------------------------------------------*
  * Constructor.                                                         *
  *----------------------------------------------------------------------*/
+#ifdef ATTINY
 DS3232RTC::DS3232RTC(USIWire &bus) : busI2C(bus)
 {
 }
+#else
+DS3232RTC::DS3232RTC(TwoWire &bus) : busI2C(bus)
+{
+}
+#endif
   
 /*----------------------------------------------------------------------*
  * Reads the current time from the RTC and returns it as a time_t       *
