@@ -39,8 +39,8 @@
  * Arduino DS3232RTC Library v1.1                                       *
  * Gionata Boccalini                                                    *
  *                                                                      *
- * - Changed include to use USIWire, master/slave I2C library for       *
- *   ATtiny, code taken from https://github.com/puuu/USIWire.           *
+ * - Changed include to use Wire, master/slave I2C library for          *
+ *   Atmel micros, with or without I2C hardware module.                 *
  *----------------------------------------------------------------------*/
 
 #ifndef DS3232RTC_h
@@ -50,13 +50,7 @@
 #include <Arduino.h> 
 
 //Define release-independent I2C inclusions
-#if defined(__AVR_ATtiny44__) || defined(__AVR_ATtiny84__) \
-    || defined(__AVR_ATtiny45__) || defined(__AVR_ATtiny85__)
-#include <USIWire.h>
-#define ATTINY
-#else
 #include <Wire.h>
-#endif
 
 //DS3232 I2C Address
 #define RTC_ADDR 0x68
@@ -143,10 +137,12 @@ enum ALARM_TYPES_t {
 class DS3232RTC
 {
     public:
-#ifdef ATTINY
-        DS3232RTC(USIWire &bus);
-#else
+#ifdef TWDR
+        // TwoWire instance, for part with I2C hardware module
         DS3232RTC(TwoWire &bus);
+#else
+        // USIWire instance, for part with only USI hardware module
+        DS3232RTC(USIWire &bus);
 #endif
         time_t get(void);
         byte set(const time_t t);
@@ -169,10 +165,10 @@ class DS3232RTC
         uint8_t dec2bcd(uint8_t n);
         static uint8_t bcd2dec(uint8_t n);
 
-#ifdef ATTINY
-        USIWire &busI2C;            //i2c bus instance
-#else
+#ifdef TWDR
         TwoWire &busI2C;            //i2c bus instance
+#else
+        USIWire &busI2C;            //i2c bus instance
 #endif
 };
 

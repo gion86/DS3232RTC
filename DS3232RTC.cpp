@@ -39,8 +39,8 @@
  * Arduino DS3232RTC Library v1.1                                       *
  * Gionata Boccalini                                                    *
  *                                                                      *
- * - Changed include to use USIWire, master/slave I2C library for       *
- *   ATtiny, code taken from https://github.com/puuu/USIWire.           *
+ * - Changed include to use Wire, master/slave I2C library for          *
+ *   Atmel micros, with or without I2C hardware module.                 *
  *----------------------------------------------------------------------*/
 
 #include <DS3232RTC.h>
@@ -50,12 +50,12 @@ byte DS3232RTC::errCode;     //for debug
 /*----------------------------------------------------------------------*
  * Constructor.                                                         *
  *----------------------------------------------------------------------*/
-#ifdef ATTINY
-DS3232RTC::DS3232RTC(USIWire &bus) : busI2C(bus)
+#ifdef TWDR
+DS3232RTC::DS3232RTC(TwoWire &bus) : busI2C(bus)
 {
 }
 #else
-DS3232RTC::DS3232RTC(TwoWire &bus) : busI2C(bus)
+DS3232RTC::DS3232RTC(USIWire &bus) : busI2C(bus)
 {
 }
 #endif
