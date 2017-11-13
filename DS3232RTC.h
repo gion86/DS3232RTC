@@ -144,6 +144,7 @@ class DS3232RTC
         // USIWire instance, for part with only USI hardware module
         DS3232RTC(USIWire &bus);
 #endif
+        byte checkCon(void);
         time_t get(void);
         byte set(const time_t t);
         byte read(struct tm *tm);

@@ -41,6 +41,7 @@
  *                                                                      *
  * - Changed include to use Wire, master/slave I2C library for          *
  *   Atmel micros, with or without I2C hardware module.                 *
+ * - Added checkCon() fuction to check the I2C connection.              *
  *----------------------------------------------------------------------*/
 
 #include <DS3232RTC.h>
@@ -59,7 +60,17 @@ DS3232RTC::DS3232RTC(USIWire &bus) : busI2C(bus)
 {
 }
 #endif
-  
+
+/*----------------------------------------------------------------------*
+ * Verifies the I2C connection by calling beginTransmission() and       *
+ * endTransmission().                                                   *
+ * Returns the I2C status (zero if successful).                         *
+ *----------------------------------------------------------------------*/
+byte DS3232RTC::checkCon(void) {
+  busI2C.beginTransmission(RTC_ADDR);
+  return busI2C.endTransmission();
+}
+
 /*----------------------------------------------------------------------*
  * Reads the current time from the RTC and returns it as a time_t       *
  * value. Returns a zero value if an I2C error occurred (e.g. RTC       *
