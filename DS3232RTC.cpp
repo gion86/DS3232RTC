@@ -18,15 +18,6 @@
 // to indicate whether I2C initialization should occur in the
 // constructor; this parameter defaults to true if not given.
 
-/*----------------------------------------------------------------------*
- * Arduino DS3232RTC Library v1.1                                       *
- * Gionata Boccalini                                                    *
- *                                                                      *
- * - Changed include to use Wire, master/slave I2C library for          *
- *   Atmel micros, with or without I2C hardware module.                 *
- * - Added checkCon() fuction to check the I2C connection.              *
- *----------------------------------------------------------------------*/
-
 #include <DS3232RTC.h>
 
 // DS3232 I2C Address
@@ -117,8 +108,8 @@ time_t DS3232RTC::get()
 {
     struct tm tm;
     
-    if ( read(&tm) ) return 0;
-    return( mk_gmtime(&tm) );
+    if (read(&tm)) return 0;
+    return mk_gmtime(&tm);
 }
 
 // Set the RTC to the given time_t value and clear the
@@ -129,9 +120,8 @@ byte DS3232RTC::set(time_t t)
     struct tm tm;
 
     gmtime_r(&t, &tm);
-    return ( write(&tm) );
+    return write(&tm);
 }
-
 
 // Reads the current time from the RTC and return it in a tm
 // structure. Returns the I2C status (zero if successful).
@@ -139,17 +129,17 @@ byte DS3232RTC::read(struct tm *tm)
 {
     busI2C.beginTransmission(RTC_ADDR);
     busI2C.write((uint8_t)RTC_SECONDS);
-    if ( byte e = busI2C.endTransmission() ) { errCode = e; return e; }
-    //request 7 bytes (secs, min, hr, dow, date, mth, yr)
+    if (byte e = busI2C.endTransmission()) { errCode = e; return e; }
+    // request 7 bytes (secs, min, hr, dow, date, mth, yr)
     busI2C.requestFrom(RTC_ADDR, 7);
     tm->tm_sec = bcd2dec(busI2C.read() & ~_BV(DS1307_CH));
     tm->tm_min = bcd2dec(busI2C.read());
     tm->tm_hour = bcd2dec(busI2C.read() & ~_BV(HR1224));    // assumes 24hr clock
     tm->tm_wday = busI2C.read();
     tm->tm_mday = bcd2dec(busI2C.read());
-    tm->tm_mon = bcd2dec(busI2C.read() & ~_BV(CENTURY));  // don't use the Century bit
-    tm->tm_year = bcd2dec(busI2C.read());                 // TODO tmYearToY2k 
-    tm->tm_isdst = 0; // TODO  ???
+    tm->tm_mon = bcd2dec(busI2C.read() & ~_BV(CENTURY));    // don't use the Century bit
+    tm->tm_year = bcd2dec(busI2C.read());                   // TODO tmYearToY2k
+    tm->tm_isdst = 0;
     return 0;
 }
 
@@ -162,14 +152,14 @@ byte DS3232RTC::write(struct tm *tm)       // TODO reference
     busI2C.write((uint8_t)RTC_SECONDS);
     busI2C.write(dec2bcd(tm->tm_sec));
     busI2C.write(dec2bcd(tm->tm_min));
-    busI2C.write(dec2bcd(tm->tm_hour));         //sets 24 hour format (Bit 6 == 0)
+    busI2C.write(dec2bcd(tm->tm_hour));     // sets 24 hour format (Bit 6 == 0)
     busI2C.write(tm->tm_wday);
     busI2C.write(dec2bcd(tm->tm_mday));
     busI2C.write(dec2bcd(tm->tm_mon));
     busI2C.write(dec2bcd(tm->tm_year));     // TODO tmYearToY2k 
     byte ret = busI2C.endTransmission();
-    uint8_t s = readRTC(RTC_STATUS);        //read the status register
-    writeRTC( RTC_STATUS, s & ~_BV(OSF) );  //clear the Oscillator Stop Flag
+    uint8_t s = readRTC(RTC_STATUS);        // read the status register
+    writeRTC(RTC_STATUS, s & ~_BV(OSF));    // clear the Oscillator Stop Flag
     return ret;
 }
 
@@ -191,7 +181,7 @@ byte DS3232RTC::writeRTC(byte addr, byte *values, byte nBytes)
 // Returns the I2C status (zero if successful).
 byte DS3232RTC::writeRTC(byte addr, byte value)
 {
-    return ( writeRTC(addr, &value, 1) );
+    return writeRTC(addr, &value, 1);
 }
 
 // Read multiple bytes from RTC RAM.
@@ -239,7 +229,7 @@ void DS3232RTC::setAlarm(ALARM_TYPES_t alarmType, byte seconds, byte minutes, by
     if (alarmType & 0x10) daydate |= _BV(DYDT);
     if (alarmType & 0x08) daydate |= _BV(A1M4);
 
-    if ( !(alarmType & 0x80) )  // alarm 1
+    if (!(alarmType & 0x80))  // alarm 1
     {
         addr = ALM1_SECONDS;
         writeRTC(addr++, seconds);
@@ -318,7 +308,7 @@ void DS3232RTC::squareWave(SQWAVE_FREQS_t freq)
 }
 
 // Returns the value of the oscillator stop flag (OSF) bit in the
-// control/status register which indicates that the oscillator is or    *
+// control/status register which indicates that the oscillator is or
 // was stopped, and that the timekeeping data may be invalid.
 // Optionally clears the OSF bit depending on the argument passed.
 bool DS3232RTC::oscStopped(bool clearOSF)
@@ -327,7 +317,7 @@ bool DS3232RTC::oscStopped(bool clearOSF)
     bool ret = s & _BV(OSF);            // isolate the osc stop flag to return to caller
     if (ret && clearOSF)                // clear OSF if it's set and the caller wants to clear it
     {
-        writeRTC( RTC_STATUS, s & ~_BV(OSF) );
+        writeRTC(RTC_STATUS, s & ~_BV(OSF));
     }
     return ret;
 }

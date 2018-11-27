@@ -18,13 +18,18 @@
 // to indicate whether I2C initialization should occur in the
 // constructor; this parameter defaults to true if not given.
 
-/*----------------------------------------------------------------------*
- * Arduino DS3232RTC Library v1.1                                       *
- * Gionata Boccalini                                                    *
- *                                                                      *
- * - Changed include to use Wire, master/slave I2C library for          *
- *   Atmel micros, with or without I2C hardware module.                 *
- *----------------------------------------------------------------------*/
+// Arduino DS3232RTC Library v1.2
+// Gionata Boccalini
+//
+// - merged from upstream (branch 'master' of https://github.com/JChristensen/DS3232RTC.git),
+//   but kept functions and I2C bus reference
+
+// Arduino DS3232RTC Library v1.1
+// Gionata Boccalini
+//
+// - changed include to use Wire, master/slave I2C library for Atmel
+//   micros, with or without I2C hardware module.
+// - added checkCon() function to check the I2C connection.
 
 #ifndef DS3232RTC_h
 #define DS3232RTC_h
@@ -37,17 +42,17 @@
 
 // Alarm masks
 enum ALARM_TYPES_t {
-    ALM1_EVERY_SECOND = 0x0F,
+    ALM1_EVERY_SECOND  = 0x0F,
     ALM1_MATCH_SECONDS = 0x0E,
     ALM1_MATCH_MINUTES = 0x0C,     // match minutes *and* seconds
-    ALM1_MATCH_HOURS = 0x08,       // match hours *and* minutes, seconds
-    ALM1_MATCH_DATE = 0x00,        // match date *and* hours, minutes, seconds
-    ALM1_MATCH_DAY = 0x10,         // match day *and* hours, minutes, seconds
-    ALM2_EVERY_MINUTE = 0x8E,
+    ALM1_MATCH_HOURS   = 0x08,     // match hours *and* minutes, seconds
+    ALM1_MATCH_DATE    = 0x00,     // match date *and* hours, minutes, seconds
+    ALM1_MATCH_DAY     = 0x10,     // match day *and* hours, minutes, seconds
+    ALM2_EVERY_MINUTE  = 0x8E,
     ALM2_MATCH_MINUTES = 0x8C,     // match minutes
-    ALM2_MATCH_HOURS = 0x88,       // match hours *and* minutes
-    ALM2_MATCH_DATE = 0x80,        // match date *and* hours, minutes
-    ALM2_MATCH_DAY = 0x90,         // match day *and* hours, minutes
+    ALM2_MATCH_HOURS   = 0x88,     // match hours *and* minutes
+    ALM2_MATCH_DATE    = 0x80,     // match date *and* hours, minutes
+    ALM2_MATCH_DAY     = 0x90,     // match day *and* hours, minutes
 };
 
 // Square-wave output frequency (TS2, RS1 bits)
