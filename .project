@@ -5,6 +5,7 @@
 	<projects>
 		<project>ATMegaCore</project>
 		<project>Wire</project>
+		<project>ATTinyCore</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
