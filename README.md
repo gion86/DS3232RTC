@@ -1,3 +1,8 @@
+# Arduino DS3232RTC Library v1.2 #
+
+- merged from upstream (branch 'master' of https://github.com/JChristensen/DS3232RTC.git),
+  but kept functions and I2C bus reference
+
 # Arduino DS3232RTC Library v1.1 #
                                                                    
 - Changed include to use USIWire, master/slave I2C library for ATTiny, code taken from <https://github.com/puuu/USIWire> 

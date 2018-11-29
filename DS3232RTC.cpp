@@ -138,7 +138,7 @@ byte DS3232RTC::read(struct tm *tm)
     tm->tm_wday = busI2C.read();
     tm->tm_mday = bcd2dec(busI2C.read());
     tm->tm_mon = bcd2dec(busI2C.read() & ~_BV(CENTURY));    // don't use the Century bit
-    tm->tm_year = bcd2dec(busI2C.read());                   // TODO tmYearToY2k
+    tm->tm_year = bcd2dec(busI2C.read());
     tm->tm_isdst = 0;
     return 0;
 }
@@ -156,7 +156,7 @@ byte DS3232RTC::write(struct tm *tm)       // TODO reference
     busI2C.write(tm->tm_wday);
     busI2C.write(dec2bcd(tm->tm_mday));
     busI2C.write(dec2bcd(tm->tm_mon));
-    busI2C.write(dec2bcd(tm->tm_year));     // TODO tmYearToY2k 
+    busI2C.write(dec2bcd(tm->tm_year));
     byte ret = busI2C.endTransmission();
     uint8_t s = readRTC(RTC_STATUS);        // read the status register
     writeRTC(RTC_STATUS, s & ~_BV(OSF));    // clear the Oscillator Stop Flag
