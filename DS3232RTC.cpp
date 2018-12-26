@@ -146,7 +146,7 @@ byte DS3232RTC::read(struct tm *tm)
 // Set the RTC time from a tm structure and clear the
 // oscillator stop flag (OSF) in the Control/Status register.
 // Returns the I2C status (zero if successful).
-byte DS3232RTC::write(struct tm *tm)       // TODO reference
+byte DS3232RTC::write(struct tm *tm)
 {
     busI2C.beginTransmission(RTC_ADDR);
     busI2C.write((uint8_t)RTC_SECONDS);
